@@ -38,6 +38,48 @@ app.get("/:year", (req, res, err) => {
     })
 })
 
+app.get("/:year1/:year2", (req, res, err) => {
+    const year1 = req.params.year1
+    const year2 = req.params.year2
+
+    if (isNaN(year1) || isNaN(year2)) {
+        return res.json({ "ERR": "Couldn't find data for provided information" })
+    }
+    if (year1 < 1957 ||
+        year2 < 1957 ||
+        year1 > new Date().getFullYear() ||
+        year2 > new Date().getFullYear()) {
+        return res.json({ "ERR": "Year out of range" })
+    }
+    if (year1 === year2) {
+        return res.redirect(`/${year1}`)
+    }
+
+    const resArr = []
+    for (let i = year1 < year2 ? year1 : year2; i <= year1 || i <= year2; i++) {
+        //check if data has already been accessed
+        if (cachedData.has(i)) {
+            resArr.push(cachedData.get(i))
+        } else {
+
+            let readData = null
+            try {
+                readData = fs.readFileSync(path.join(__dirname, "data", `${i}.json`))
+
+            } catch (e) {
+                console.error(e)
+                console.error(`Problem reading data from ${i}...`)
+                continue
+            }
+            const dataJSON = JSON.parse(readData)
+            resArr.push(dataJSON)
+            cachedData.set(i, dataJSON)
+        }
+    }
+
+    return res.json({ "DATA": resArr })
+})
+
 app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
 })
