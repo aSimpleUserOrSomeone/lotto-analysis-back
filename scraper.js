@@ -16,6 +16,7 @@ async function getData(writePath) {
     //Do tego momentu zbiera informacje o wszystkich latach losowań
     //aby uzyc ich do nawigacji
 
+    const isBreak = false
     console.log("Początek zbierania danych...");
     for (const rok of lata) {
         const infoRok = [];
@@ -32,11 +33,13 @@ async function getData(writePath) {
             infoRok.push({ id, data, liczby })
         }
         infoRok.reverse()
+
+        if(!fs.existsSync(writePath)) {
+            fs.mkdirSync(writePath)
+        }
         const filePath = path.join(writePath, `${rok}.json`)
         fs.writeFile(filePath, JSON.stringify(infoRok), (err) => {
-            if (err) {
-                console.error(err)
-            }
+            if (err) console.error(err)
         })
     }
 
