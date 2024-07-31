@@ -24,7 +24,7 @@ app.get("/:year", (req, res, err) => {
 
     //check if data has already been accessed
     if (cachedData.has(year)) {
-        return res.json({ "data": cachedData.get(year) })
+        return res.json(cachedData.get(year))
     }
 
     fs.readFile(path.join(__dirname, "data", `${year}.json`), (err, dataBuffer) => {
@@ -33,7 +33,7 @@ app.get("/:year", (req, res, err) => {
             return res.json({ "ERR": "Error reading data" })
         }
         const data = JSON.parse(dataBuffer)
-        res.json({ "DATA": data })
+        res.json(data)
         cachedData.set(year, data)
     })
 })
@@ -61,11 +61,9 @@ app.get("/:year1/:year2", (req, res, err) => {
         if (cachedData.has(i)) {
             resArr.push(cachedData.get(i))
         } else {
-
             let readData = null
             try {
                 readData = fs.readFileSync(path.join(__dirname, "data", `${i}.json`))
-
             } catch (e) {
                 console.error(e)
                 console.error(`Problem reading data from ${i}...`)
@@ -77,7 +75,7 @@ app.get("/:year1/:year2", (req, res, err) => {
         }
     }
 
-    return res.json({ "DATA": resArr })
+    return res.json(resArr)
 })
 
 app.listen(PORT, () => {
